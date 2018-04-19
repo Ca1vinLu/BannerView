@@ -31,8 +31,6 @@ public class BannerView extends LinearLayout {
     private ViewPager mViewPager;
     private ViewPagerIndicator mIndicator;
 
-    private int mPaddingTop, mPaddingBottom, mPaddingStart, mPaddingEnd;
-    private int mPagerWidth, mPagerHeight;
     private int mPagerMargin = 4;
 
     private int mTextSize = 16;
@@ -75,13 +73,12 @@ public class BannerView extends LinearLayout {
         mViewPager = new ViewPager(mContext) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                int mWidthMode = MeasureSpec.getMode(widthMeasureSpec);
-                int mHeightMode = MeasureSpec.getMode(heightMeasureSpec);
                 int mMeasuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-                int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec) - mTextSize * 2 - mIndicatorTextMargin - mIndicatorRadius * 2;
+                int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec)
+                        - mTextSize * 2 - mIndicatorTextMargin - mIndicatorRadius * 2;
                 int mParentWidth = mMeasuredWidth;
 
-
+                //计算ViewPager宽高
                 float scale = (mMeasuredHeight * 1f / (mMeasuredWidth));
                 if (scale < mScale) {
                     mMeasuredWidth = (int) (mMeasuredHeight / mScale);
@@ -91,11 +88,12 @@ public class BannerView extends LinearLayout {
                     mMeasuredHeight = (int) (mMeasuredWidth * mScale);
                 }
 
+                //生成新的MeasureSpec
+                widthMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredWidth, MeasureSpec.EXACTLY);
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredHeight, MeasureSpec.EXACTLY);
 
-                widthMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredWidth, mWidthMode);
-                heightMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredHeight, mHeightMode);
-
-                int limit = mParentWidth / mMeasuredWidth;
+                //计算OffscreenPageLimit
+                int limit = (int) Math.ceil(mParentWidth * 1f / mMeasuredWidth / 2);
                 setOffscreenPageLimit(limit + 1);
 
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -103,12 +101,6 @@ public class BannerView extends LinearLayout {
 
             }
 
-            @Override
-            protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-                super.onSizeChanged(w, h, oldw, oldh);
-                ((LinearLayout.LayoutParams) getLayoutParams()).setMarginStart(w / 10);
-                ((LinearLayout.LayoutParams) getLayoutParams()).setMarginEnd(w / 10);
-            }
         };
 
 
@@ -130,7 +122,8 @@ public class BannerView extends LinearLayout {
         });
 
 //        mViewPager.setPageMargin(mPagerMargin);
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT, Gravity.CENTER);
         mViewPager.setLayoutParams(layoutParams);
         mViewPager.setClipChildren(false);
         mViewPager.setOverScrollMode(OVER_SCROLL_NEVER);
@@ -140,7 +133,8 @@ public class BannerView extends LinearLayout {
     private void initIndicator() {
         mIndicator = new ViewPagerIndicator(mContext);
         mIndicator.attachViewPager(mViewPager);
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, mTextSize * 2 + mIndicatorRadius * 2 + mIndicatorTextMargin, Gravity.CENTER);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+                mTextSize * 2 + mIndicatorRadius * 2 + mIndicatorTextMargin, Gravity.CENTER);
         mIndicator.setLayoutParams(layoutParams);
         addView(mIndicator);
     }

@@ -19,18 +19,20 @@ import com.meitu.lyz.bannerview.widget.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * @author LYZ 2018.04.19
+ */
 public class MainActivity extends AppCompatActivity {
 
     private BannerView mBannerView;
-    private RelativeLayout rlDownload;
+    private RelativeLayout mRlDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mBannerView = findViewById(R.id.banner_view);
-        rlDownload=findViewById(R.id.rl_download);
+        mRlDownload = findViewById(R.id.rl_download);
         initData();
         initListener();
     }
@@ -50,12 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
         MyPagerAdapter adapter = new MyPagerAdapter(mViews);
         mBannerView.setAdapter(adapter, titleStr);
-//        mBannerView.setOffscreenPageLimit(3);
         mBannerView.setPageTransformer(false, new ZoomOutPageTransformer());
     }
 
-    private void initListener(){
-        rlDownload.setOnClickListener(new View.OnClickListener() {
+    private void initListener() {
+        mRlDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

@@ -66,7 +66,7 @@ public class ViewPagerIndicator extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+
         int width = getMeasuredWidth();
         int center = width / 2;
 
@@ -74,7 +74,7 @@ public class ViewPagerIndicator extends View {
         mPaint.setColor(mTextColor);
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setAlpha((int) (255 * Math.abs(mPosOffset - 0.5) * 2));
-
+        //绘制文字并计算偏移值
         float offset;
         if (mPosOffset >= 0.5) {
             offset = (float) (mTextSize * (1 - mPosOffset) * 2);
@@ -83,9 +83,9 @@ public class ViewPagerIndicator extends View {
         }
         canvas.drawText(mTitleStr.get(mSelectedPos), center + offset, mTextSize * 2, mPaint);
 
+
+        //绘制指示器
         int indicatorStart = center - ((mIndicatorRadius * 2 + mIndicatorMargin) * (mTitleStr.size() - 1)) / 2;
-
-
         for (int i = 0, size = mTitleStr.size(); i < size; i++, indicatorStart += (mIndicatorRadius * 2 + mIndicatorMargin)) {
             if (i == mSelectedPos)
                 mPaint.setColor(mIndicatorColorSelected);
