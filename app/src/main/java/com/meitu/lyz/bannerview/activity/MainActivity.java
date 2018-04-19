@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.meitu.lyz.bannerview.widget.ZoomOutPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * @author LYZ 2018.04.19
  */

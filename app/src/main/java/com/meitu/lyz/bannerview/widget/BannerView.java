@@ -77,12 +77,16 @@ public class BannerView extends LinearLayout {
                 int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec)
                         - mTextSize * 2 - mIndicatorTextMargin - mIndicatorRadius * 2;
                 int mParentWidth = mMeasuredWidth;
-                
+
                 //计算ViewPager宽高
                 float scale = (mMeasuredHeight * 1f / (mMeasuredWidth));
                 if (scale < mScale) {
                     mMeasuredWidth = (int) (mMeasuredHeight / mScale);
-                    mMeasuredWidth = (int) Math.min(mParentWidth * 0.75, mMeasuredWidth);
+//                    mMeasuredWidth = (int) Math.min(mParentWidth * 0.75, mMeasuredWidth);
+                    if (mParentWidth * 0.75 < mMeasuredWidth) {
+                        mMeasuredWidth = (int) (mParentWidth * 0.75);
+                        mMeasuredHeight = (int) (mMeasuredWidth * mScale);
+                    }
                 } else {
                     mMeasuredWidth *= 0.75;
                     mMeasuredHeight = (int) (mMeasuredWidth * mScale);
