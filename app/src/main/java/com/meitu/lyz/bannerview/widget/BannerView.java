@@ -77,7 +77,7 @@ public class BannerView extends LinearLayout {
                 int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec)
                         - mTextSize * 2 - mIndicatorTextMargin - mIndicatorRadius * 2;
                 int mParentWidth = mMeasuredWidth;
-
+                
                 //计算ViewPager宽高
                 float scale = (mMeasuredHeight * 1f / (mMeasuredWidth));
                 if (scale < mScale) {
@@ -85,14 +85,14 @@ public class BannerView extends LinearLayout {
                     mMeasuredWidth = (int) Math.min(mParentWidth * 0.75, mMeasuredWidth);
                 } else {
                     mMeasuredWidth *= 0.75;
-//                    mMeasuredHeight = (int) (mMeasuredWidth * mScale);
+                    mMeasuredHeight = (int) (mMeasuredWidth * mScale);
                 }
                 int paddingStart = (mParentWidth - mMeasuredWidth) / 2;
                 setPadding(paddingStart, 0, paddingStart, 0);
 
                 //生成新的MeasureSpec
 //                widthMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredWidth, MeasureSpec.EXACTLY);
-//                heightMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredHeight, MeasureSpec.EXACTLY);
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredHeight, MeasureSpec.EXACTLY);
 
                 //计算OffscreenPageLimit
                 int limit = (int) Math.ceil(mParentWidth * 1f / mMeasuredWidth / 2);
