@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         MyPagerAdapter adapter = new MyPagerAdapter(mViews);
         mBannerView.setAdapter(adapter, titleStr);
-        mBannerView.setPageTransformer(false, new ZoomOutPageTransformer());
+        mBannerView.setPageTransformer(false, new ZoomOutPageTransformer(mBannerView.getViewPager()));
     }
 
     private void initListener() {

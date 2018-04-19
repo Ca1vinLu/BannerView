@@ -60,6 +60,7 @@ public class BannerView extends LinearLayout {
 
     private void initAttr() {
         setClipChildren(false);
+        setClipToPadding(false);
         setOrientation(VERTICAL);
         setGravity(Gravity.CENTER);
 
@@ -126,7 +127,6 @@ public class BannerView extends LinearLayout {
 
             }
         });
-
 //        mViewPager.setPageMargin(mPagerMargin);
         LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT, Gravity.CENTER);
@@ -171,5 +171,7 @@ public class BannerView extends LinearLayout {
         mViewPager.setPageTransformer(reverseDrawingOrder, pageTransformer);
     }
 
-
+    public ViewPager getViewPager() {
+        return mViewPager;
+    }
 }
