@@ -49,7 +49,8 @@
             android:maxLines="1"
             android:text="UD NAKED HEAT"
             android:textColor="@color/module_title_text_color"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_subtitle"

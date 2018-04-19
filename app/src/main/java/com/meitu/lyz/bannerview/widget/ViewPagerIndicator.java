@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -73,13 +74,14 @@ public class ViewPagerIndicator extends View {
         mPaint.setTextSize(mTextSize);
         mPaint.setColor(mTextColor);
         mPaint.setTextAlign(Paint.Align.CENTER);
+        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
         mPaint.setAlpha((int) (255 * Math.abs(mPosOffset - 0.5) * 2));
         //绘制文字并计算偏移值
         float offset;
         if (mPosOffset >= 0.5) {
-            offset = (float) (mTextSize * (1 - mPosOffset) * 2);
+            offset = (float) (mTextSize * (1 - mPosOffset));
         } else {
-            offset = (float) (-mTextSize * mPosOffset * 2);
+            offset = (float) (-mTextSize * mPosOffset);
         }
         canvas.drawText(mTitleStr.get(mSelectedPos), center + offset, mTextSize * 2, mPaint);
 
