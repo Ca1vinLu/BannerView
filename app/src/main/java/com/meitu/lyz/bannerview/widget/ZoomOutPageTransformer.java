@@ -14,8 +14,6 @@ public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
     private static final String TAG = "ZoomOutPageTransformer";
 
     private ViewPager mViewPager;
-    private float mPositionFixer;
-    private boolean isSetFixer = false;
 
     public ZoomOutPageTransformer(ViewPager viewPager) {
         mViewPager = viewPager;
@@ -30,14 +28,11 @@ public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
 
     public void transformPage(@NonNull View view, float position) {
 
-        if(!isSetFixer) {
-            final int mClientWidth = mViewPager.getMeasuredWidth() -
-                    mViewPager.getPaddingLeft() - mViewPager.getPaddingRight();
-            mPositionFixer = ((float)mViewPager.getPaddingStart()) / mClientWidth;
-            isSetFixer = true;
-        }
+        final int mClientWidth = mViewPager.getMeasuredWidth() -
+                mViewPager.getPaddingLeft() - mViewPager.getPaddingRight();
+        float positionFixer = ((float) mViewPager.getPaddingStart()) / mClientWidth;
 
-        position -= mPositionFixer;
+        position -= positionFixer;
 
         int pageWidth = view.getWidth();
         int pageHeight = view.getHeight();
