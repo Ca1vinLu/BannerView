@@ -77,69 +77,38 @@ public class BannerView extends LinearLayout {
 
     private void initViewPager() {
         mViewPager = new ViewPager(mContext) {
-            private boolean isFirst = true;
-            private int lastFirstItem = 0;
+
+            //notifyDataSetChanged()时会导致currentItem所在位置变为坐标原点
+            private int mLastCurrentItem = 0;
 
             @Override
             public void setAdapter(@Nullable PagerAdapter adapter) {
                 super.setAdapter(adapter);
-                if (adapter != null)
+                if (adapter != null) {
+                    mLastCurrentItem = 0;
                     adapter.registerDataSetObserver(new DataSetObserver() {
                         @Override
                         public void onChanged() {
                             super.onChanged();
-                            lastFirstItem = getCurrentItem();
+                            mLastCurrentItem = getCurrentItem();
                         }
                     });
+                }
             }
 
             @Override
             protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//                super.onSizeChanged(w, h, oldw, oldh);
-//
-//                final int widthWithMargin = w - getPaddingLeft() - getPaddingRight();
-//                final int oldWidthWithMargin = oldw - getPaddingLeft() - getPaddingRight();
-//                final int xpos = getScrollX();
-//                final float pageOffset = (float) xpos / oldWidthWithMargin;
-//                final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
-
+                //模拟点触，触发 mScroller.abortAnimation()，避免滑动未完成导致的偏差
                 MotionEvent event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0);
                 onTouchEvent(event);
                 event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0);
                 onTouchEvent(event);
 
+                //计算page实际的宽并scroll至正确的位置
                 int realPageWidth = w - getPaddingStart() - getPaddingEnd();
-                scrollTo(realPageWidth * (getCurrentItem() - lastFirstItem), getScrollY());
+                //减去mLastCurrentItem后修正ScrollX的值
+                scrollTo(realPageWidth * (getCurrentItem() - mLastCurrentItem), getScrollY());
 
-//                onPageScrolled(getCurrentItem(), 0, 0);
-//
-//                if (!isFirst && mViewPager.getAdapter() != null)
-//                    mViewPager.getAdapter().notifyDataSetChanged();
-//                isFirst = false;
-
-//                super.onSizeChanged(w, h, mPagerItemWidth + getPaddingStart() + getPaddingEnd(), oldh);
-//                scrollBy(-(w - getPaddingStart() - getPaddingEnd() - mPagerItemWidth) * getOffscreenPageLimit(), 0);
-//                mPagerItemWidth = w - getPaddingStart() - getPaddingEnd();
-
-
-//                beginFakeDrag();
-//                endFakeDrag();
-
-
-//               if (oldw > 0 && getChildCount()>0){
-//                   if (!mScroller.isFinished()) {
-//                       mScroller.setFinalX(getCurrentItem() * getClientWidth());
-//                   } else {
-//                       final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
-//                       final int oldWidthWithMargin = oldWidth - getPaddingLeft() - getPaddingRight()
-//                               + oldMargin;
-//                       final int xpos = getScrollX();
-//                       final float pageOffset = (float) xpos / oldWidthWithMargin;
-//                       final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
-//
-//                       scrollTo(newOffsetPixels, getScrollY());
-//                   }
-//               }else  super.onSizeChanged(w, h, oldw, oldh);
             }
 
             @Override

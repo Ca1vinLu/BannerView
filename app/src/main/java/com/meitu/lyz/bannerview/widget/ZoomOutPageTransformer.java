@@ -36,6 +36,7 @@ public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
                 mViewPager.getPaddingLeft() - mViewPager.getPaddingRight();
         float positionFixer = mViewPager.getPaddingStart() / mClientWidth;
 
+        //notifyDataSetChanged()后，此时requestLayout()还未执行，position均为0，进行修正
         if (position == 0 && view.getTag() instanceof Integer) {
             int curItem = mViewPager.getCurrentItem();
             int viewPos = (Integer) view.getTag();
