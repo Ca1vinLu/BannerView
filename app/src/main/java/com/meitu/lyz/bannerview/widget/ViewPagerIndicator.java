@@ -67,7 +67,7 @@ public class ViewPagerIndicator extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mTitleStr != null && mTitleStr.size() != 0) {
+        if (mTitleStr != null && mSelectedPos < mTitleStr.size()) {
 
             int width = getMeasuredWidth();
             int center = width / 2;
