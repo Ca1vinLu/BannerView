@@ -1,6 +1,7 @@
 package com.meitu.lyz.bannerview.widget;
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
@@ -10,6 +11,8 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.meitu.lyz.bannerview.util.ConvertUtils;
@@ -31,7 +34,8 @@ public class BannerView extends LinearLayout {
     private ViewPager mViewPager;
     private ViewPagerIndicator mIndicator;
 
-    private int mPagerMargin = 4;
+    private int mPagerItemWidth = 0;
+    private int mPagerMargin = 10;
 
     private int mTextSize = 16;
     private int mIndicatorRadius = 3;
@@ -56,6 +60,7 @@ public class BannerView extends LinearLayout {
         initAttr();
         initViewPager();
         initIndicator();
+//        initListener();
     }
 
     private void initAttr() {
@@ -72,8 +77,74 @@ public class BannerView extends LinearLayout {
 
     private void initViewPager() {
         mViewPager = new ViewPager(mContext) {
+            private boolean isFirst = true;
+            private int lastFirstItem = 0;
+
+            @Override
+            public void setAdapter(@Nullable PagerAdapter adapter) {
+                super.setAdapter(adapter);
+                if (adapter != null)
+                    adapter.registerDataSetObserver(new DataSetObserver() {
+                        @Override
+                        public void onChanged() {
+                            super.onChanged();
+                            lastFirstItem = getCurrentItem();
+                        }
+                    });
+            }
+
+            @Override
+            protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+//                super.onSizeChanged(w, h, oldw, oldh);
+//
+//                final int widthWithMargin = w - getPaddingLeft() - getPaddingRight();
+//                final int oldWidthWithMargin = oldw - getPaddingLeft() - getPaddingRight();
+//                final int xpos = getScrollX();
+//                final float pageOffset = (float) xpos / oldWidthWithMargin;
+//                final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
+
+                MotionEvent event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0);
+                onTouchEvent(event);
+                event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0);
+                onTouchEvent(event);
+
+                int realPageWidth = w - getPaddingStart() - getPaddingEnd();
+                scrollTo(realPageWidth * (getCurrentItem() - lastFirstItem), getScrollY());
+
+//                onPageScrolled(getCurrentItem(), 0, 0);
+//
+//                if (!isFirst && mViewPager.getAdapter() != null)
+//                    mViewPager.getAdapter().notifyDataSetChanged();
+//                isFirst = false;
+
+//                super.onSizeChanged(w, h, mPagerItemWidth + getPaddingStart() + getPaddingEnd(), oldh);
+//                scrollBy(-(w - getPaddingStart() - getPaddingEnd() - mPagerItemWidth) * getOffscreenPageLimit(), 0);
+//                mPagerItemWidth = w - getPaddingStart() - getPaddingEnd();
+
+
+//                beginFakeDrag();
+//                endFakeDrag();
+
+
+//               if (oldw > 0 && getChildCount()>0){
+//                   if (!mScroller.isFinished()) {
+//                       mScroller.setFinalX(getCurrentItem() * getClientWidth());
+//                   } else {
+//                       final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
+//                       final int oldWidthWithMargin = oldWidth - getPaddingLeft() - getPaddingRight()
+//                               + oldMargin;
+//                       final int xpos = getScrollX();
+//                       final float pageOffset = (float) xpos / oldWidthWithMargin;
+//                       final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
+//
+//                       scrollTo(newOffsetPixels, getScrollY());
+//                   }
+//               }else  super.onSizeChanged(w, h, oldw, oldh);
+            }
+
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                Log.d(TAG, "mViewPager onMeasure: ");
                 int mMeasuredWidth = MeasureSpec.getSize(widthMeasureSpec);
                 int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec)
                         - mTextSize * 2 - mIndicatorTextMargin - mIndicatorRadius * 2;
@@ -127,6 +198,15 @@ public class BannerView extends LinearLayout {
 
             }
         });
+
+        mViewPager.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Log.d(TAG, "mViewPager onLayoutChange: ");
+            }
+        });
+
+
 //        mViewPager.setPageMargin(mPagerMargin);
         LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT, Gravity.CENTER);
@@ -146,6 +226,15 @@ public class BannerView extends LinearLayout {
         addView(mIndicator);
     }
 
+    private void initListener() {
+        addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+            }
+        });
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         Log.d(TAG, "onMeasure: ");
@@ -161,6 +250,10 @@ public class BannerView extends LinearLayout {
     public void setAdapter(PagerAdapter adapter, List<String> titleStr) {
         mViewPager.setAdapter(adapter);
         setTitleStr(titleStr);
+    }
+
+    public void setAdapter(PagerAdapter adapter) {
+        mViewPager.setAdapter(adapter);
     }
 
     public void setTitleStr(List<String> titleStr) {
