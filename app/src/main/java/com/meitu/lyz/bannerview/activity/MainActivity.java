@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             titleStr.add("text" + i);
         }
         mAdapter.setNewData(views);
-        mBannerView.setTitleStr(titleStr);
     }
 
     private void initListener() {
