@@ -12,8 +12,6 @@ import android.view.View;
 
 import com.meitu.lyz.bannerview.util.ConvertUtils;
 
-import java.util.List;
-
 /**
  * @author LYZ 2018.04.19
  */
@@ -23,7 +21,7 @@ public class ViewPagerIndicator extends View {
     private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private ViewPager mViewPager;
 
-    private List<String> mTitleStr;
+
     private int mTextSize = 16;
     private int mIndicatorRadius = 3;
     private int mIndicatorMargin = 10;
@@ -66,30 +64,39 @@ public class ViewPagerIndicator extends View {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(getMeasuredWidth(), mTextSize * 2 + mIndicatorRadius * 2 + mIndicatorTextMargin);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
-        if (mTitleStr != null && mSelectedPos < mTitleStr.size()) {
+        if (mViewPager != null && mViewPager.getAdapter().getCount() != 0) {
 
             int width = getMeasuredWidth();
             int center = width / 2;
 
-            mPaint.setTextSize(mTextSize);
-            mPaint.setColor(mTextColor);
-            mPaint.setTextAlign(Paint.Align.CENTER);
-            mPaint.setTypeface(Typeface.DEFAULT_BOLD);
-            mPaint.setAlpha((int) (255 * Math.abs(mPosOffset - 0.5) * 2));
-            //绘制文字并计算偏移值
-            float offset;
-            if (mPosOffset >= 0.5) {
-                offset = (float) (mTextSize * (1 - mPosOffset));
-            } else {
-                offset = (float) (-mTextSize * mPosOffset);
+            CharSequence str = mViewPager.getAdapter().getPageTitle(mSelectedPos);
+            if (str != null) {
+                mPaint.setTextSize(mTextSize);
+                mPaint.setColor(mTextColor);
+                mPaint.setTextAlign(Paint.Align.CENTER);
+                mPaint.setTypeface(Typeface.DEFAULT_BOLD);
+                mPaint.setAlpha((int) (255 * Math.abs(mPosOffset - 0.5) * 2));
+                //绘制文字并计算偏移值
+                float offset;
+                if (mPosOffset >= 0.5) {
+                    offset = (float) (mTextSize * (1 - mPosOffset));
+                } else {
+                    offset = (float) (-mTextSize * mPosOffset);
+                }
+                canvas.drawText(str.toString(), center + offset, mTextSize * 2, mPaint);
             }
-            canvas.drawText(mTitleStr.get(mSelectedPos), center + offset, mTextSize * 2, mPaint);
 
 
             //绘制指示器
-            int indicatorStart = center - ((mIndicatorRadius * 2 + mIndicatorMargin) * (mTitleStr.size() - 1)) / 2;
-            for (int i = 0, size = mTitleStr.size(); i < size; i++, indicatorStart += (mIndicatorRadius * 2 + mIndicatorMargin)) {
+            int indicatorStart = center - ((mIndicatorRadius * 2 + mIndicatorMargin) * (mViewPager.getAdapter().getCount() - 1)) / 2;
+            for (int i = 0, size = mViewPager.getAdapter().getCount(); i < size; i++, indicatorStart += (mIndicatorRadius * 2 + mIndicatorMargin)) {
                 if (i == mSelectedPos)
                     mPaint.setColor(mIndicatorColorSelected);
                 else mPaint.setColor(mIndicatorColorUnselected);
@@ -122,8 +129,4 @@ public class ViewPagerIndicator extends View {
         });
     }
 
-    public void setTitleStr(List<String> titleStr) {
-        mTitleStr = titleStr;
-        invalidate();
-    }
 }

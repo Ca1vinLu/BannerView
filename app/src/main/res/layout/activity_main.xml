@@ -13,13 +13,19 @@
         android:layout_height="wrap_content"
         app:navigationIcon="?homeAsUpIndicator" />
 
-    <com.meitu.lyz.bannerview.widget.BannerView
-        android:id="@+id/banner_view"
+    <com.meitu.lyz.bannerview.widget.MultipleItemViewPager
+        android:id="@+id/multiple_item_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingBottom="12dp"
         android:paddingTop="12dp" />
+
+    <com.meitu.lyz.bannerview.widget.ViewPagerIndicator
+        android:id="@+id/view_pager_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" />
 
     <View
         android:layout_width="match_parent"

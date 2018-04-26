@@ -2,23 +2,20 @@ package com.meitu.lyz.bannerview.activity;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.meitu.lyz.bannerview.R;
-import com.meitu.lyz.bannerview.widget.BannerView;
-import com.meitu.lyz.bannerview.widget.ZoomOutPageTransformer;
+import com.meitu.lyz.bannerview.adapter.MultipleItemPagerAdapter;
+import com.meitu.lyz.bannerview.widget.MultipleItemViewPager;
+import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,29 +26,33 @@ import java.util.Random;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private BannerView mBannerView;
+    private MultipleItemViewPager mBannerView;
+    private ViewPagerIndicator mViewPagerIndicator;
     private RelativeLayout mRlDownload;
     private Button mBtnChange;
     private boolean mIsDouble = false;
-    private MyPagerAdapter mAdapter;
+    private MultipleItemPagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBannerView = findViewById(R.id.banner_view);
+        mBannerView = findViewById(R.id.multiple_item_view_pager);
+        mViewPagerIndicator = findViewById(R.id.view_pager_indicator);
         mRlDownload = findViewById(R.id.rl_download);
         mBtnChange = findViewById(R.id.btn_change);
+        mViewPagerIndicator.attachViewPager(mBannerView.getViewPager());
+
         initData();
         initListener();
     }
 
 
     private void initData() {
-        mAdapter = new MyPagerAdapter();
+        mAdapter = new MultipleItemPagerAdapter();
         mAdapter.setViewPager(mBannerView.getViewPager());
         mBannerView.setAdapter(mAdapter);
-        mBannerView.setPageTransformer(false, new ZoomOutPageTransformer(mBannerView.getViewPager()));
+
 
         generateData(15);
     }
@@ -88,86 +89,10 @@ public class MainActivity extends AppCompatActivity {
         mBtnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                generateData(new Random().nextInt(15));
+                generateData(new Random().nextInt(14) + 1);
             }
         });
     }
 
-    class MyPagerAdapter extends PagerAdapter {
-
-        private static final String TAG = "MyPagerAdapter";
-        private List<ImageView> mViews;
-        private ViewPager mViewPager;
-
-        public MyPagerAdapter(List<ImageView> mViews) {
-            this.mViews = mViews;
-
-        }
-
-        public MyPagerAdapter() {
-        }
-
-        public MyPagerAdapter(ViewPager viewPager) {
-            mViewPager = viewPager;
-        }
-
-        public void setNewData(List<ImageView> mViews) {
-            this.mViews = mViews;
-            notifyDataSetChanged();
-        }
-
-        public void setViewPager(ViewPager viewPager) {
-            mViewPager = viewPager;
-        }
-
-        @Override
-        public int getCount() {
-            return mViews == null ? 0 : mViews.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-            return view == object;
-        }
-
-        @Override
-        public float getPageWidth(int position) {
-            return 1f;
-        }
-
-        @Override
-        public int getItemPosition(@NonNull Object object) {
-            return POSITION_NONE;
-        }
-
-        @NonNull
-        @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
-            Log.d(TAG, "instantiateItem: position" + position);
-            if (mViews != null && mViews.size() > 0) {
-                View view = mViews.get(position);
-                view.setTag(position);
-                container.addView(view);
-                return view;
-            } else return null;
-        }
-
-        @Override
-        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-            Log.d(TAG, "destroyItem: position " + position);
-            container.removeView(((View) object));
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            int curItem = mViewPager.getCurrentItem();
-            super.notifyDataSetChanged();
-            if (mViews != null && curItem < mViews.size())
-                mViewPager.setCurrentItem(curItem);
-            else mViewPager.setCurrentItem(0);
-
-
-        }
-    }
 
 }
