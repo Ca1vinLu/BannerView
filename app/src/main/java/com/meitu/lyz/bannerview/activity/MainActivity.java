@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout mRlDownload;
     private Button mBtnChange;
     private boolean mIsDouble = false;
-    private MultipleItemPagerAdapter mAdapter;
+    private MultipleItemPagerAdapter<ImageView> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initData() {
-        mAdapter = new MultipleItemPagerAdapter();
+        mAdapter = new MultipleItemPagerAdapter<ImageView>();
         mAdapter.setViewPager(mBannerView.getViewPager());
         mBannerView.setAdapter(mAdapter);
 
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             views.add(imageView);
             titleStr.add("text" + i);
         }
-        mAdapter.setNewData(views);
+        mAdapter.setNewViews(views);
     }
 
     private void initListener() {

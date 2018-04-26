@@ -7,23 +7,18 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import java.util.List;
 
 /**
  * @author LYZ 2018.04.19
  */
-public class MultipleItemPagerAdapter extends PagerAdapter {
+public class MultipleItemPagerAdapter<T extends View> extends PagerAdapter {
 
     private static final String TAG = "PagerAdapter";
-    private List<ImageView> mViews;
+    private List<T> mViews;
+    private List<String> mTitles;
     private ViewPager mViewPager;
-
-    public MultipleItemPagerAdapter(List<ImageView> mViews) {
-        this.mViews = mViews;
-
-    }
 
     public MultipleItemPagerAdapter() {
     }
@@ -32,9 +27,65 @@ public class MultipleItemPagerAdapter extends PagerAdapter {
         mViewPager = viewPager;
     }
 
-    public void setNewData(List<ImageView> mViews) {
-        this.mViews = mViews;
+    public MultipleItemPagerAdapter(List<T> views, ViewPager viewPager) {
+        mViews = views;
+        mViewPager = viewPager;
+    }
+
+    public MultipleItemPagerAdapter(List<T> views, List<String> titles, ViewPager viewPager) {
+        mViews = views;
+        mTitles = titles;
+        mViewPager = viewPager;
+    }
+
+
+    public void setNewViews(List<T> views) {
+        mViews = views;
         notifyDataSetChanged();
+    }
+
+    public void setNewViews(List<T> views, List<String> titles) {
+        mViews = views;
+        mTitles = titles;
+        notifyDataSetChanged();
+    }
+
+
+    public void addViews(List<T> addData) {
+        mViews.addAll(addData);
+        notifyDataSetChanged();
+    }
+
+    public void addViews(List<T> addData, List<String> titles) {
+        mViews.addAll(addData);
+        mTitles.addAll(titles);
+        notifyDataSetChanged();
+    }
+
+    public void addView(T addData) {
+        mViews.add(addData);
+        notifyDataSetChanged();
+    }
+
+    public void addView(T addData, String title) {
+        mViews.add(addData);
+        mTitles.add(title);
+        notifyDataSetChanged();
+    }
+
+    public void removeView(int position) {
+        mViews.remove(position);
+        if (mTitles != null)
+            mTitles.remove(position);
+    }
+
+
+    public List<T> getViews() {
+        return mViews;
+    }
+
+    public List<String> getTitles() {
+        return mTitles;
     }
 
     public void setViewPager(ViewPager viewPager) {
@@ -91,6 +142,6 @@ public class MultipleItemPagerAdapter extends PagerAdapter {
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        return "text" + position;
+        return mTitles != null ? mTitles.get(position) : null;
     }
 }
