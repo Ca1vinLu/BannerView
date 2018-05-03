@@ -11,5 +11,5 @@
     <color name="module_download_text_color">@color/white</color>
     <color name="module_title_text_color">@color/black</color>
     <color name="module_subtitle_text_color">@color/gray_747474</color>
-    <color name="modele_line_bg">#f2f2f2</color>
+    <color name="module_line_bg">#f2f2f2</color>
 </resources>

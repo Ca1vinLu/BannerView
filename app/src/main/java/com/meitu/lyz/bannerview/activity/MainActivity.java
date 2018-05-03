@@ -3,6 +3,7 @@ package com.meitu.lyz.bannerview.activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
@@ -13,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.meitu.lyz.bannerview.R;
+import com.meitu.lyz.bannerview.ZoomPageTransformer;
 import com.meitu.lyz.bannerview.adapter.MultipleItemPagerAdapter;
-import com.meitu.lyz.bannerview.widget.MultipleItemViewPager;
 import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.Random;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private MultipleItemViewPager mBannerView;
+    private ViewPager mViewPager;
     private ViewPagerIndicator mViewPagerIndicator;
     private RelativeLayout mRlDownload;
     private Button mBtnChange;
@@ -37,11 +38,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBannerView = findViewById(R.id.multiple_item_view_pager);
+        mViewPager = findViewById(R.id.multiple_item_view_pager);
         mViewPagerIndicator = findViewById(R.id.view_pager_indicator);
         mRlDownload = findViewById(R.id.rl_download);
         mBtnChange = findViewById(R.id.btn_change);
-        mViewPagerIndicator.attachViewPager(mBannerView.getViewPager());
+        mViewPagerIndicator.attachViewPager(mViewPager);
 
         initData();
         initListener();
@@ -50,10 +51,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         mAdapter = new MultipleItemPagerAdapter<ImageView>();
-        mAdapter.setViewPager(mBannerView.getViewPager());
-        mBannerView.setAdapter(mAdapter);
-
-
+        mAdapter.setViewPager(mViewPager);
+        mViewPager.setAdapter(mAdapter);
+        ZoomPageTransformer zoomPageTransformer = new ZoomPageTransformer();
+        zoomPageTransformer.bindViewPager(mViewPager);
+        mViewPager.setPageTransformer(false, zoomPageTransformer);
         generateData(15);
     }
 
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 else layoutParams.height = mRlDownload.getHeight() / 2;
                 mIsDouble = !mIsDouble;
                 mRlDownload.setLayoutParams(layoutParams);
+
+
             }
         });
 

@@ -13,13 +13,11 @@
         android:layout_height="wrap_content"
         app:navigationIcon="?homeAsUpIndicator" />
 
-    <com.meitu.lyz.bannerview.widget.MultipleItemViewPager
+    <android.support.v4.view.ViewPager
         android:id="@+id/multiple_item_view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="12dp"
-        android:paddingTop="12dp" />
+        android:layout_weight="1" />
 
     <com.meitu.lyz.bannerview.widget.ViewPagerIndicator
         android:id="@+id/view_pager_indicator"
@@ -30,7 +28,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/modele_line_bg" />
+        android:background="@color/module_line_bg" />
 
     <RelativeLayout
         android:layout_width="match_parent"
