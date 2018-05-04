@@ -16,8 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.meitu.lyz.bannerview.R;
-import com.meitu.lyz.bannerview.ZoomPageTransformer;
 import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
+import com.meitu.lyz.widget.ZoomPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mBtnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                generateData(new Random().nextInt(14) + 1);
-                mViewPager.setCurrentItem(5);
+                generateData(new Random().nextInt(14) + 1);
             }
         });
     }

@@ -9,6 +9,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
+ * FixPagerTransformer实现了当ViewPager设置Padding后PageTransformer的position的修正
+ * 以及刷新数据集后position的修正，继承后应实现{@link #fixTransformPage(View, float)}  而不是  {@link #transformPage(View, float)}
+ * <p>
+ * 可以选择是否开启对ViewPager的Padding非侵入式设置
+ *
  * @author LYZ 2018.04.27
  */
 public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
@@ -26,8 +31,8 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
     private int mLastCurrentItem;
     //ViewPager单侧可见Item数
     private int mVisibleOffsetNum;
-    //是否开启
-    private boolean mOpenFixPadding = true;
+    //是否开启Padding的计算修正
+    private boolean mOpenSetPadding = true;
 
     @Override
     public void transformPage(@NonNull View page, float position) {
@@ -63,34 +68,22 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
                     }
                 }
             }
-        } else if (isOpenFixPadding()) {//修正Padding造成的Position误差
+        } else if (mViewPager.getPaddingStart() != 0) {//修正Padding造成的Position误差
             final float mClientWidth = mViewPager.getMeasuredWidth() -
                     mViewPager.getPaddingLeft() - mViewPager.getPaddingRight();
             float positionFixer = mViewPager.getPaddingStart() / mClientWidth;
             position -= positionFixer;
         }
 
-
+        //将修正后的posting传入fixTransformPage(@NonNull View page, float position)
         fixTransformPage(page, position);
     }
 
+
+    /**
+     * @param position 修正后的position
+     */
     abstract void fixTransformPage(@NonNull View page, float position);
-
-    public boolean isOpenFixPadding() {
-        return mOpenFixPadding;
-    }
-
-    public void setOpenFixPadding(boolean openFixPadding) {
-        mOpenFixPadding = openFixPadding;
-    }
-
-    public double getRatio() {
-        return mRatio;
-    }
-
-    public void setRatio(float ratio) {
-        mRatio = ratio;
-    }
 
 
     /**
@@ -114,7 +107,7 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
         });
 
 
-        if (isOpenFixPadding()) {
+        if (isOpenSetPadding() || !(viewPager instanceof MultipleItemViewPager)) {
             setPagerPadding(viewPager, viewPager.getWidth(), viewPager.getHeight());
         }
 
@@ -127,7 +120,7 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
                 final ViewPager vp = ((ViewPager) v);
 
-                if (isOpenFixPadding()) {
+                if (isOpenSetPadding()) {
                     final int width = right - left;
                     final int height = bottom - top;
                     vp.post(new Runnable() {
@@ -191,5 +184,23 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
         //计算单侧可显示的Item数
         mVisibleOffsetNum = (int) (Math.ceil((mParentWidth - mPagerItemWidth) / 2f / mPagerItemWidth));
     }
+
+
+    public boolean isOpenSetPadding() {
+        return mOpenSetPadding;
+    }
+
+    public void setOpenSetPadding(boolean openSetPadding) {
+        mOpenSetPadding = openSetPadding;
+    }
+
+    public double getRatio() {
+        return mRatio;
+    }
+
+    public void setRatio(float ratio) {
+        mRatio = ratio;
+    }
+
 
 }

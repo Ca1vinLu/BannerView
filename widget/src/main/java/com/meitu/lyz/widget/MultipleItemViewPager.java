@@ -8,23 +8,30 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 
 /**
+ * 实现了Padding计算的ViewPager，配合Position修正插件{@link  FixPagerTransformer}可实现ViewPager多Item的效果
+ *
  * @author LYZ 2018.05.04
  */
 public class MultipleItemViewPager extends ViewPager {
 
     private static final String TAG = "MultipleItemViewPager";
 
+    private Context mContext;
     private static final float DEFAULT_WIDTH = 276;
     private static final float DEFAULT_HEIGHT = 348;
 
+    //Item的高宽比
     private float mRatio = DEFAULT_HEIGHT / DEFAULT_WIDTH;
 
 
-    //notifyDataSetChanged()时会导致currentItem所在位置变为坐标原点
+    //刷新前Item的位置，因为notifyDataSetChanged()时会导致currentItem所在位置变为坐标原点
     private int mLastCurrentItem = 0;
+
+    //Item的实际宽度
     private int mPagerItemWidth = 0;
 
 
@@ -34,6 +41,7 @@ public class MultipleItemViewPager extends ViewPager {
 
     public MultipleItemViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         setClipChildren(false);
         setClipToPadding(false);
     }
@@ -55,10 +63,13 @@ public class MultipleItemViewPager extends ViewPager {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        Log.d(TAG, "mViewPager onMeasure: ");
         int mMeasuredWidth = MeasureSpec.getSize(widthMeasureSpec);
         int mMeasuredHeight = MeasureSpec.getSize(heightMeasureSpec);
         int mParentWidth = mMeasuredWidth;
         int mParentHeight = mMeasuredHeight;
+        mMeasuredHeight -= dp2px(4, mContext);
+
 
         //计算ViewPager宽高
         float scale = (mMeasuredHeight * 1f / (mMeasuredWidth));
@@ -73,14 +84,16 @@ public class MultipleItemViewPager extends ViewPager {
             mMeasuredWidth *= 0.75;
             mMeasuredHeight = (int) (mMeasuredWidth * mRatio);
         }
+
         mPagerItemWidth = mMeasuredWidth;
+
+        //计算Padding值
         int paddingStart = (mParentWidth - mMeasuredWidth) / 2;
         int paddingTop = (mParentHeight - mMeasuredHeight) / 2;
+
         setPadding(paddingStart, paddingTop, paddingStart, paddingTop);
 
-        //生成新的MeasureSpec
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(mMeasuredHeight, MeasureSpec.EXACTLY);
-
+        //调用onMesasure来对Item进行测量
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
@@ -97,20 +110,31 @@ public class MultipleItemViewPager extends ViewPager {
 
     }
 
+
+    /**
+     * 设置PageTransformer
+     *
+     * @param transformer 必须继承自{@link FixPagerTransformer}
+     */
     @Override
     public void setPageTransformer(boolean reverseDrawingOrder, @Nullable PageTransformer transformer) {
         if (transformer instanceof FixPagerTransformer) {
-            ((FixPagerTransformer) transformer).setOpenFixPadding(false);
+            ((FixPagerTransformer) transformer).setOpenSetPadding(false);
             super.setPageTransformer(reverseDrawingOrder, transformer);
         } else {
             Log.e(TAG, "PageTransformer must extend FixPageTransformer!");
         }
     }
 
+    /**
+     * 设置PageTransformer
+     *
+     * @param transformer 必须继承自{@link FixPagerTransformer}
+     */
     @Override
     public void setPageTransformer(boolean reverseDrawingOrder, @Nullable PageTransformer transformer, int pageLayerType) {
         if (transformer instanceof FixPagerTransformer) {
-            ((FixPagerTransformer) transformer).setOpenFixPadding(false);
+            ((FixPagerTransformer) transformer).setOpenSetPadding(false);
             super.setPageTransformer(reverseDrawingOrder, transformer, pageLayerType);
         } else {
             Log.e(TAG, "PageTransformer must extend FixPageTransformer!");
@@ -123,5 +147,14 @@ public class MultipleItemViewPager extends ViewPager {
 
     public void setRatio(float ratio) {
         mRatio = ratio;
+    }
+
+
+    public static int dp2px(int dp, Context context) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    public static int sp2px(int sp, Context context) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
     }
 }
