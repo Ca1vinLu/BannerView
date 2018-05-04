@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         zoomPageTransformer.bindViewPager(mViewPager);
         mViewPager.setPageTransformer(false, zoomPageTransformer);
         generateData(15);
+
     }
 
     private void generateData(int size) {
@@ -93,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         mBtnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                generateData(new Random().nextInt(14) + 1);
+//                generateData(new Random().nextInt(14) + 1);
+                mViewPager.setCurrentItem(5);
             }
         });
     }

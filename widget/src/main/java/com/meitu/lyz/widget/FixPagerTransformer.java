@@ -1,4 +1,4 @@
-package com.meitu.lyz.bannerview;
+package com.meitu.lyz.widget;
 
 import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
