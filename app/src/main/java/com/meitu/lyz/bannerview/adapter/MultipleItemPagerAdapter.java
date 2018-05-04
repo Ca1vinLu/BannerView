@@ -118,7 +118,7 @@ public class MultipleItemPagerAdapter<T extends View> extends PagerAdapter {
         Log.d(TAG, "instantiateItem: position" + position);
         if (mViews != null && mViews.size() > 0) {
             View view = mViews.get(position);
-            view.setTag(position);
+//            view.setTag(position);
             container.addView(view);
             return view;
         } else return null;

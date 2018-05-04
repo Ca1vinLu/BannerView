@@ -8,9 +8,6 @@ import android.view.View;
  */
 public class ZoomPageTransformer extends FixPagerTransformer {
     private static final float MIN_SCALE = 0.8f;
-    private static final float DEFAULT_WIDTH = 276;
-    private static final float DEFAULT_HEIGHT = 348;
-    private float mRatio = DEFAULT_HEIGHT / DEFAULT_WIDTH;
 
     @Override
     void fixTransformPage(@NonNull View page, float position) {
@@ -35,13 +32,5 @@ public class ZoomPageTransformer extends FixPagerTransformer {
         page.setScaleY(scaleFactor);
     }
 
-    @Override
-    public boolean isFixedRatio() {
-        return true;
-    }
 
-    @Override
-    public double getFixedRatio() {
-        return mRatio;
-    }
 }
