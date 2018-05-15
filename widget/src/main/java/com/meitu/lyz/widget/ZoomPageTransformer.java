@@ -14,7 +14,7 @@ public class ZoomPageTransformer extends FixPagerTransformer {
     private float mMinScale = 0.8f;
 
     @Override
-    void fixTransformPage(@NonNull View page, float position) {
+    protected void fixTransformPage(@NonNull View page, float position) {
         int pageWidth = page.getWidth();
 
         float scaleFactor = mMinScale + (1 - mMinScale) * (1 - Math.abs(position));

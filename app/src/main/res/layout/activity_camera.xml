@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".activity.CameraActivity">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:layout_marginBottom="44dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:layout_gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+        </android.support.v4.view.ViewPager>
+
+        <ImageView
+            android:id="@+id/iv_ring"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ring" />
+    </FrameLayout>
+
+</RelativeLayout>

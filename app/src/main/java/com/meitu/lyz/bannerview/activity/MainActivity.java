@@ -8,14 +8,18 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.meitu.lyz.bannerview.R;
+import com.meitu.lyz.bannerview.widget.PagerIndicator;
 import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
 import com.meitu.lyz.widget.ZoomPageTransformer;
 
@@ -23,15 +27,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * @author LYZ 2018.04.19
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private ViewPager mViewPager;
-    private ViewPagerIndicator mViewPagerIndicator;
-    private RelativeLayout mRlDownload;
-    private Button mBtnChange;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.multiple_item_view_pager)
+    ViewPager mViewPager;
+    @BindView(R.id.view_pager_indicator)
+    ViewPagerIndicator mViewPagerIndicator;
+    @BindView(R.id.text_page_indicator)
+    PagerIndicator mPagerIndicator;
+    @BindView(R.id.rl_download)
+    RelativeLayout mRlDownload;
+    @BindView(R.id.btn_change)
+    Button mBtnChange;
+
     private boolean mIsDouble = false;
     private MyAdapter mAdapter;
 
@@ -39,11 +55,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mViewPager = findViewById(R.id.multiple_item_view_pager);
-        mViewPagerIndicator = findViewById(R.id.view_pager_indicator);
-        mRlDownload = findViewById(R.id.rl_download);
-        mBtnChange = findViewById(R.id.btn_change);
+        ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
         mViewPagerIndicator.attachViewPager(mViewPager);
+        mPagerIndicator.attachViewPager(mViewPager);
 
         initData();
         initListener();
@@ -51,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initData() {
+        Toast.makeText(this, "initData", Toast.LENGTH_SHORT).show();
         mAdapter = new MyAdapter();
         mViewPager.setAdapter(mAdapter);
         ZoomPageTransformer zoomPageTransformer = new ZoomPageTransformer();
@@ -73,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             titleStr.add("text" + i);
         }
         mAdapter.setViews(views);
+        mPagerIndicator.setTotalSize(views.size());
     }
 
     private void initListener() {
@@ -99,6 +116,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+
+        return true;
+    }
 
     private class MyAdapter extends PagerAdapter {
 

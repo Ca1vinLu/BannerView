@@ -83,7 +83,7 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
     /**
      * @param position 修正后的position
      */
-    abstract void fixTransformPage(@NonNull View page, float position);
+    protected abstract void fixTransformPage(@NonNull View page, float position);
 
 
     /**
