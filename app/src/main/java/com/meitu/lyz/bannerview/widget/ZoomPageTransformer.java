@@ -8,6 +8,8 @@ import android.view.View;
 import com.meitu.lyz.widget.FixPagerTransformer;
 
 /**
+ * 缩放PageTransformer，可实现item的间距修正即设置
+ *
  * @author LYZ 2018.04.27
  */
 public class ZoomPageTransformer extends FixPagerTransformer {
@@ -19,6 +21,8 @@ public class ZoomPageTransformer extends FixPagerTransformer {
 
     //外部View的宽度
     private int mRingWidth;
+    //item间距
+    private int mItemMargin = -1;
 
 
     @Override
@@ -39,7 +43,7 @@ public class ZoomPageTransformer extends FixPagerTransformer {
          * item间的间距实际上就等于 (1 - mMinScale) * itemWidth
          * 计算偏移，中间三个位置即position在[-1,1]这个区间中时，偏移值为内圆到外圆的距离加上(1 - mMinScale) * itemWidth / 2
          * 因为左右两边已经存在(1 - mMinScale) * itemWidth / 2 的间距,所以偏移值还需补上(1 - mMinScale) * itemWidth / 2
-         *
+         * 当设置了特定的间距时，则再次进行修正
          * */
 
         //ViewPager item的直径，若此时View还未进行测量，则直接取ViewPager的高度
@@ -49,8 +53,15 @@ public class ZoomPageTransformer extends FixPagerTransformer {
             itemWidth = vp.getHeight() - vp.getPaddingTop() - vp.getPaddingBottom();
         }
 
+        //item缩放后的剩余宽度
+        float leftSpace = (1 - mMinScale) * itemWidth;
         //偏移值
-        float offset = (mRingWidth - itemWidth) / 2f + (1 - mMinScale) * itemWidth / 2f;
+        float offset = (mRingWidth - itemWidth) / 2f + leftSpace / 2f;
+
+        //若设置了特定的间距，则进行修正
+        if (mItemMargin >= 0) {
+            offset += (mItemMargin - leftSpace) * Math.abs(position);
+        }
 
         if (position < -1) {//position  (-∞ , -1)
             page.setTranslationX(-offset);
@@ -76,6 +87,14 @@ public class ZoomPageTransformer extends FixPagerTransformer {
         this.mMinScale = minScale;
     }
 
+
+    public int getItemMargin() {
+        return mItemMargin;
+    }
+
+    public void setItemMargin(int itemMargin) {
+        mItemMargin = itemMargin;
+    }
 
     /**
      * 绑定外部View，获取外部View的宽度并赋值给{@link #mRingWidth}

@@ -9,8 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.meitu.lyz.bannerview.R;
+import com.meitu.lyz.bannerview.util.ConvertUtils;
 import com.meitu.lyz.bannerview.widget.ZoomPageTransformer;
 
 import java.util.ArrayList;
@@ -47,9 +49,11 @@ public class CameraActivity extends AppCompatActivity {
 
         ZoomPageTransformer zoomPageTransformer = new ZoomPageTransformer();
         zoomPageTransformer.setRatio(1);
+        zoomPageTransformer.setItemMargin(ConvertUtils.dp2px(0, this));
         zoomPageTransformer.bindViewPager(mViewPager);
         zoomPageTransformer.bindCircleView(mIvRing);
         mViewPager.setPageTransformer(false, zoomPageTransformer);
+
     }
 
 
@@ -94,10 +98,17 @@ public class CameraActivity extends AppCompatActivity {
 
         @NonNull
         @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+        public Object instantiateItem(@NonNull final ViewGroup container, final int position) {
             if (mViews != null && mViews.size() > 0) {
                 View view = mViews.get(position);
 //            view.setTag(position);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(CameraActivity.this, "" + position, Toast.LENGTH_SHORT).show();
+                        ((ViewPager) v.getParent()).setCurrentItem(position, true);
+                    }
+                });
                 container.addView(view);
                 return view;
             } else return null;
