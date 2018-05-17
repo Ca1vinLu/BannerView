@@ -8,8 +8,6 @@ import android.view.View;
 import com.meitu.lyz.widget.FixPagerTransformer;
 
 /**
- * 缩放效果的PageTransformer
- *
  * @author LYZ 2018.04.27
  */
 public class ZoomPageTransformer extends FixPagerTransformer {
@@ -18,38 +16,54 @@ public class ZoomPageTransformer extends FixPagerTransformer {
 
     //最小缩放比
     private float mMinScale = 0.83f;
+
+    //外部View的宽度
     private int mRingWidth;
 
 
     @Override
     protected void fixTransformPage(@NonNull View page, float position) {
-        int pageWidth = page.getHeight();
-        if (pageWidth == 0) {
-            ViewPager vp = (ViewPager) page.getParent();
-            pageWidth = vp.getHeight();
-        }
 
+        //计算缩放比
         float scaleFactor = (mMinScale + (1 - mMinScale) * (1 - Math.abs(position)));
         scaleFactor = Math.max(mMinScale, scaleFactor);
 
 
-        //偏移值  内圆到外圆
-        int offset = (int) ((mRingWidth - pageWidth) / 2 + (1 - mMinScale) * pageWidth / 2);
-        if (position <= -1) {
+        //设置XY缩放
+        page.setScaleX(scaleFactor);
+        page.setScaleY(scaleFactor);
+
+
+
+        /*
+         * item间的间距实际上就等于 (1 - mMinScale) * itemWidth
+         * 计算偏移，中间三个位置即position在[-1,1]这个区间中时，偏移值为内圆到外圆的距离加上(1 - mMinScale) * itemWidth / 2
+         * 因为左右两边已经存在(1 - mMinScale) * itemWidth / 2 的间距,所以偏移值还需补上(1 - mMinScale) * itemWidth / 2
+         *
+         * */
+
+        //ViewPager item的直径，若此时View还未进行测量，则直接取ViewPager的高度
+        int itemWidth = page.getHeight();
+        if (itemWidth == 0) {
+            ViewPager vp = (ViewPager) page.getParent();
+            itemWidth = vp.getHeight() - vp.getPaddingTop() - vp.getPaddingBottom();
+        }
+
+        //偏移值
+        float offset = (mRingWidth - itemWidth) / 2f + (1 - mMinScale) * itemWidth / 2f;
+
+        if (position < -1) {//position  (-∞ , -1)
             page.setTranslationX(-offset);
-        } else if (position <= 0) {
+        } else if (position <= 0) {//position  [-1 , 0]
             offset *= (-position / 1f);
             page.setTranslationX(-offset);
-        } else if (position < 1) {
+        } else if (position <= 1) {//position  [0 , 1]
             offset *= (position / 1f);
             page.setTranslationX(offset);
-        } else {
+        } else {//position  (1 , +∞)
             page.setTranslationX(offset);
         }
 
-        // Scale the page down (between mMinScale and 1)
-        page.setScaleX(scaleFactor);
-        page.setScaleY(scaleFactor);
 
         Log.d(TAG, "fixTransformPage: " +
                 " position: " + position +
@@ -62,6 +76,10 @@ public class ZoomPageTransformer extends FixPagerTransformer {
         this.mMinScale = minScale;
     }
 
+
+    /**
+     * 绑定外部View，获取外部View的宽度并赋值给{@link #mRingWidth}
+     */
     public void bindCircleView(View circle) {
         circle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -72,6 +90,10 @@ public class ZoomPageTransformer extends FixPagerTransformer {
         });
     }
 
+
+    /**
+     * 固定宽高比为1
+     */
     @Override
     public double getRatio() {
         return 1;

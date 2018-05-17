@@ -159,7 +159,7 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
      */
     private void setPagerPadding(ViewPager viewPager, int w, int h) {
         int mMeasuredWidth = w;
-        int mMeasuredHeight = (int) ((h) * 0.95);
+        int mMeasuredHeight = h;
         int mParentWidth = mMeasuredWidth;
         int mParentHeight = mMeasuredHeight;
 

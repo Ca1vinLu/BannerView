@@ -69,7 +69,7 @@ public class CameraActivity extends AppCompatActivity {
         List<String> titleStr = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             CircleImageView imageView = new CircleImageView(this);
-            imageView.setImageResource(R.mipmap.ic_launcher_round);
+            imageView.setImageResource(R.color.module_download_btn_bg);
             views.add(imageView);
             titleStr.add("text" + i);
         }
