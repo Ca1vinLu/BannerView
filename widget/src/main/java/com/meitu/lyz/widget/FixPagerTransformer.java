@@ -1,11 +1,7 @@
 package com.meitu.lyz.widget;
 
-import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -20,19 +16,18 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
     private static final String TAG = "FixPagerTransformer";
 
-    private static final float DEFAULT_WIDTH = 276;
-    private static final float DEFAULT_HEIGHT = 348;
-    //Item默认宽高比
-    private float mRatio = DEFAULT_HEIGHT / DEFAULT_WIDTH;
+
+    private ViewPagerMultipleItemPlugin mPagerPlugin;
 
     //page的实际宽度
-    private int mPagerItemWidth;
-    //ViewPager刷新前的CurrentItem
-    private int mLastCurrentItem;
+    protected int mPagerItemWidth;
+
     //ViewPager单侧可见Item数
-    private int mVisibleOffsetNum;
+    private int mVisibleOffsetNum = 0;
+
     //是否开启Padding的计算修正
     private boolean mOpenSetPadding = true;
+
 
     @Override
     public void transformPage(@NonNull View page, float position) {
@@ -87,28 +82,16 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
 
     /**
-     * 对ViewPager进行非侵入式配置，必须在ViewPager setAdapter后调用
-     * 设置Adapter的DataSetObserver来获取{@link #mLastCurrentItem}
-     * ViewPager设置OnLayoutChangeListener来设置ViewPager的padding及处理size变化的情况
+     * 对ViewPager进行非侵入式配置
+     * ViewPager设置OnLayoutChangeListener来计算ViewPager的padding及处理size变化的情况
      */
-    public void bindViewPager(final ViewPager viewPager) {
-        if (viewPager.getAdapter() == null) {
-            Log.e(TAG, "ViewPager haven't set adapter yet!");
-            return;
-        }
+    public void bindViewPager(ViewPager viewPager) {
 
-        final PagerAdapter adapter = viewPager.getAdapter();
-        adapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                mLastCurrentItem = viewPager.getCurrentItem();
-            }
-        });
-
-
-        if (isOpenSetPadding() || !(viewPager instanceof MultipleItemViewPager)) {
-            setPagerPadding(viewPager, viewPager.getWidth(), viewPager.getHeight());
+        if (isOpenSetPadding() && !(viewPager instanceof MultipleItemViewPager)) {
+            mPagerPlugin = new ViewPagerMultipleItemPlugin(viewPager);
+            mPagerPlugin.calculatePadding(viewPager.getWidth(), viewPager.getHeight());
+        } else if (viewPager instanceof MultipleItemViewPager) {
+            mPagerPlugin = ((MultipleItemViewPager) viewPager).getPagerPlugin();
         }
 
         viewPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -120,23 +103,16 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
                 final ViewPager vp = ((ViewPager) v);
 
-                if (isOpenSetPadding()) {
+                if (isOpenSetPadding() && !(vp instanceof MultipleItemViewPager)) {
                     final int width = right - left;
                     final int height = bottom - top;
                     vp.post(new Runnable() {
                         @Override
                         public void run() {
                             //设置ViewPager的padding来显示多个Item
-                            setPagerPadding(vp, width, height);
-
-                            //模拟点触，触发 mScroller.abortAnimation()，避免滑动未完成导致的偏差
-                            MotionEvent event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0);
-                            vp.onTouchEvent(event);
-                            event = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0);
-                            vp.onTouchEvent(event);
-
-                            //减去mLastCurrentItem后修正ScrollX的值
-                            vp.scrollTo(mPagerItemWidth * (vp.getCurrentItem() - mLastCurrentItem), vp.getScrollY());
+                            mPagerItemWidth = mPagerPlugin.calculatePadding(width, height);
+                            mVisibleOffsetNum = (int) (Math.ceil((vp.getWidth() - mPagerItemWidth) / 2f / mPagerItemWidth));
+                            mPagerPlugin.onSizeChange();
                         }
                     });
                 } else {
@@ -151,40 +127,6 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
     }
 
-    /**
-     * 计算ViewPager的Padding使其能显示多个Item
-     *
-     * @param w 宽度
-     * @param h 高度
-     */
-    private void setPagerPadding(ViewPager viewPager, int w, int h) {
-        int mMeasuredWidth = w;
-        int mMeasuredHeight = h;
-        int mParentWidth = mMeasuredWidth;
-        int mParentHeight = mMeasuredHeight;
-
-        //计算ViewPager宽高
-        float scale = (mMeasuredHeight * 1f / (mMeasuredWidth));
-        if (scale < getRatio()) {
-            mMeasuredWidth = (int) (mMeasuredHeight / getRatio());
-//                    mMeasuredWidth = (int) Math.min(mParentWidth * 0.75, mMeasuredWidth);
-            if (mParentWidth * 0.75 < mMeasuredWidth) {
-                mMeasuredWidth = (int) (mParentWidth * 0.75);
-                mMeasuredHeight = (int) (mMeasuredWidth * getRatio());
-            }
-        } else {
-            mMeasuredWidth *= 0.75;
-            mMeasuredHeight = (int) (mMeasuredWidth * getRatio());
-        }
-        mPagerItemWidth = mMeasuredWidth;
-        int paddingStart = (mParentWidth - mMeasuredWidth) / 2;
-        int paddingTop = (h - mMeasuredHeight) / 2;
-        viewPager.setPadding(paddingStart, paddingTop, paddingStart, paddingTop);
-
-        //计算单侧可显示的Item数
-        mVisibleOffsetNum = (int) (Math.ceil((mParentWidth - mPagerItemWidth) / 2f / mPagerItemWidth));
-    }
-
 
     public boolean isOpenSetPadding() {
         return mOpenSetPadding;
@@ -194,13 +136,37 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
         mOpenSetPadding = openSetPadding;
     }
 
-    public double getRatio() {
-        return mRatio;
+    public float getRatio() {
+        return mPagerPlugin.getRatio();
     }
 
     public void setRatio(float ratio) {
-        mRatio = ratio;
+        mPagerPlugin.setRatio(ratio);
     }
 
 
+    public float getWidthProportion() {
+        return mPagerPlugin.getWidthProportion();
+    }
+
+    public void setWidthProportion(float widthProportion) {
+        mPagerPlugin.setWidthProportion(widthProportion);
+    }
+
+    public float getHeightProportion() {
+        return mPagerPlugin.getHeightProportion();
+    }
+
+    public void setHeightProportion(float heightProportion) {
+        mPagerPlugin.setHeightProportion(heightProportion);
+    }
+
+
+    public ViewPagerMultipleItemPlugin getPagerPlugin() {
+        return mPagerPlugin;
+    }
+
+    public void setPagerPlugin(ViewPagerMultipleItemPlugin pagerPlugin) {
+        mPagerPlugin = pagerPlugin;
+    }
 }

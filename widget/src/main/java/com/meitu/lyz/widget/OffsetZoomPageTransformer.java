@@ -1,26 +1,24 @@
-package com.meitu.lyz.bannerview.widget;
+package com.meitu.lyz.widget;
 
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 
-import com.meitu.lyz.widget.FixPagerTransformer;
-
 /**
- * 缩放PageTransformer，可实现item的间距修正即设置
+ * 缩放PageTransformer ，当中间item与左右有一个间距时可进行修正
+ * 并且可以设置间距的大小
  *
  * @author LYZ 2018.04.27
  */
-public class ZoomPageTransformer extends FixPagerTransformer {
+public class OffsetZoomPageTransformer extends FixPagerTransformer {
 
-    private static final String TAG = "ZoomPageTransformer";
+    private static final String TAG = "OffsetZoomPageTransformer";
 
     //最小缩放比
     private float mMinScale = 0.83f;
 
     //外部View的宽度
-    private int mRingWidth;
+    private int mRingWidth = 0;
     //item间距
     private int mItemMargin = -1;
 
@@ -46,40 +44,43 @@ public class ZoomPageTransformer extends FixPagerTransformer {
          * 当设置了特定的间距时，则再次进行修正
          * */
 
-        //ViewPager item的直径，若此时View还未进行测量，则直接取ViewPager的高度
-        int itemWidth = page.getHeight();
-        if (itemWidth == 0) {
-            ViewPager vp = (ViewPager) page.getParent();
-            itemWidth = vp.getHeight() - vp.getPaddingTop() - vp.getPaddingBottom();
+        //若padding还未计算则先计算padding
+        if (mPagerItemWidth == 0) {
+            ViewPager viewPager = (ViewPager) page.getParent();
+            mPagerItemWidth = getPagerPlugin().calculatePadding(viewPager.getWidth(), viewPager.getHeight());
         }
 
         //item缩放后的剩余宽度
-        float leftSpace = (1 - mMinScale) * itemWidth;
+        float leftSpace = (1 - scaleFactor) * mPagerItemWidth;
         //偏移值
-        float offset = (mRingWidth - itemWidth) / 2f + leftSpace / 2f;
+        float offset = Math.max((mRingWidth - mPagerItemWidth), 0) / 2f + leftSpace / 2;
 
         //若设置了特定的间距，则进行修正
         if (mItemMargin >= 0) {
             offset += (mItemMargin - leftSpace) * Math.abs(position);
         }
 
+
+        // TODO: 2018/5/18 0018 滑动时保持间距不变
         if (position < -1) {//position  (-∞ , -1)
             page.setTranslationX(-offset);
         } else if (position <= 0) {//position  [-1 , 0]
-            offset *= (-position / 1f);
+            offset *= -position;
+//            offset += ((-1 - position) * (leftSpace - mItemMargin));
             page.setTranslationX(-offset);
         } else if (position <= 1) {//position  [0 , 1]
-            offset *= (position / 1f);
+            offset *= position;
+//            offset -= ((1 - position) * (leftSpace - mItemMargin));
             page.setTranslationX(offset);
         } else {//position  (1 , +∞)
             page.setTranslationX(offset);
         }
 
 
-        Log.d(TAG, "fixTransformPage: " +
-                " position: " + position +
-                " scaleFactor: " + scaleFactor +
-                " TranslationX: " + page.getTranslationX());
+//        Log.d(TAG, "fixTransformPage: " +
+//                " position: " + position +
+//                " scaleFactor: " + scaleFactor +
+//                " TranslationX: " + page.getTranslationX());
     }
 
 
@@ -99,22 +100,14 @@ public class ZoomPageTransformer extends FixPagerTransformer {
     /**
      * 绑定外部View，获取外部View的宽度并赋值给{@link #mRingWidth}
      */
-    public void bindCircleView(View circle) {
-        circle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+    public void bindOutsideView(View view) {
+        view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                int w = right - left;
-                mRingWidth = w;
+                mRingWidth = right - left;
             }
         });
     }
 
 
-    /**
-     * 固定宽高比为1
-     */
-    @Override
-    public double getRatio() {
-        return 1;
-    }
 }

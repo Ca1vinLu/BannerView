@@ -13,13 +13,24 @@
         android:layout_height="wrap_content"
         app:navigationIcon="?homeAsUpIndicator" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/multiple_item_view_pager"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:clipToPadding="false"
-        android:clipChildren="false"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <com.meitu.lyz.widget.MultipleItemViewPager
+            android:id="@+id/multiple_item_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/black" />
+    </FrameLayout>
 
     <com.meitu.lyz.bannerview.widget.ViewPagerIndicator
         android:id="@+id/view_pager_indicator"

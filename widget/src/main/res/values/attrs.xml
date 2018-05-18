@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MultipleItemViewPager">
+        <!--高宽比  value=高/宽-->
+        <attr name="radio" format="float" />
+        <!--最大宽占比-->
+        <attr name="widthProportion" format="float" />
+        <!--最大高占比-->
+        <attr name="heightProportion" format="float" />
+    </declare-styleable>
+</resources>

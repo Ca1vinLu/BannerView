@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.meitu.lyz.bannerview.R;
 import com.meitu.lyz.bannerview.util.ConvertUtils;
-import com.meitu.lyz.bannerview.widget.ZoomPageTransformer;
+import com.meitu.lyz.widget.OffsetZoomPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,12 +47,12 @@ public class CameraActivity extends AppCompatActivity {
         mAdapter = new MyAdapter();
         mViewPager.setAdapter(mAdapter);
 
-        ZoomPageTransformer zoomPageTransformer = new ZoomPageTransformer();
-        zoomPageTransformer.setRatio(1);
-        zoomPageTransformer.setItemMargin(ConvertUtils.dp2px(0, this));
-        zoomPageTransformer.bindViewPager(mViewPager);
-        zoomPageTransformer.bindCircleView(mIvRing);
-        mViewPager.setPageTransformer(false, zoomPageTransformer);
+        OffsetZoomPageTransformer offsetZoomPageTransformer = new OffsetZoomPageTransformer();
+        offsetZoomPageTransformer.setItemMargin(ConvertUtils.dp2px(0, this));
+        offsetZoomPageTransformer.bindViewPager(mViewPager);
+        offsetZoomPageTransformer.bindOutsideView(mIvRing);
+        offsetZoomPageTransformer.setRatio(1);
+        mViewPager.setPageTransformer(false, offsetZoomPageTransformer);
 
     }
 

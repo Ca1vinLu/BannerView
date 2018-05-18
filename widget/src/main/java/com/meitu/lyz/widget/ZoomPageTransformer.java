@@ -1,6 +1,7 @@
 package com.meitu.lyz.widget;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -9,6 +10,8 @@ import android.view.View;
  * @author LYZ 2018.04.27
  */
 public class ZoomPageTransformer extends FixPagerTransformer {
+
+    private static final String TAG = "ZoomPageTransformer";
 
     //最小缩放比
     private float mMinScale = 0.8f;
@@ -21,11 +24,11 @@ public class ZoomPageTransformer extends FixPagerTransformer {
         scaleFactor = Math.max(mMinScale, scaleFactor);
 
 
-        if (position < -1) {
+        if (position <= -1) {
             float nextScaleFactor = mMinScale + (1 - mMinScale) * (1 - Math.abs(position + 1));
             page.setTranslationX(pageWidth * (1 - nextScaleFactor) / 2);
 
-        } else if (position > 1) {
+        } else if (position >= 1) {
             float preScaleFactor = mMinScale + (1 - mMinScale) * (1 - Math.abs(position - 1));
             page.setTranslationX(-pageWidth * (1 - preScaleFactor) / 2);
         }

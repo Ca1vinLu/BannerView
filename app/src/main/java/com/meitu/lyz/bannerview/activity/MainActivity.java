@@ -1,5 +1,6 @@
 package com.meitu.lyz.bannerview.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,12 +17,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.meitu.lyz.bannerview.R;
+import com.meitu.lyz.bannerview.util.ConvertUtils;
 import com.meitu.lyz.bannerview.widget.PagerIndicator;
 import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
-import com.meitu.lyz.widget.ZoomPageTransformer;
+import com.meitu.lyz.widget.FixPagerTransformer;
+import com.meitu.lyz.widget.OffsetZoomPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,11 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initData() {
-        Toast.makeText(this, "initData", Toast.LENGTH_SHORT).show();
         mAdapter = new MyAdapter();
         mViewPager.setAdapter(mAdapter);
-        ZoomPageTransformer zoomPageTransformer = new ZoomPageTransformer();
+        FixPagerTransformer zoomPageTransformer = new OffsetZoomPageTransformer();
         zoomPageTransformer.bindViewPager(mViewPager);
+        ((OffsetZoomPageTransformer) zoomPageTransformer).setItemMargin(ConvertUtils.dp2px(10, this));
+//        zoomPageTransformer.setRatio(1);
         mViewPager.setPageTransformer(false, zoomPageTransformer);
         generateData(15);
 
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             views.add(imageView);
             titleStr.add("text" + i);
         }
+        mViewPager.setOffscreenPageLimit(size);
         mAdapter.setViews(views);
         mPagerIndicator.setTotalSize(views.size());
     }
@@ -121,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                startActivity(new Intent(this, CameraActivity.class));
                 break;
         }
 

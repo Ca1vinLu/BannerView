@@ -38,6 +38,7 @@ public class PagerIndicator extends AppCompatTextView {
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                setText(String.format(mFormatStr, Math.round(position + positionOffset + 1), mSize));
 
             }
 
