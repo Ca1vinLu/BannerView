@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * 帮助计算有多个item时ViewPager的padding，及处理ViewPager onSizeChange时位置修正的辅助插件类
@@ -33,6 +34,9 @@ public class ViewPagerMultipleItemPlugin {
     //item最大高占比
     private float mHeightProportion = DEFAULT_HEIGHT_PROPORTION;
 
+    //是否开启Padding的计算修正
+    private boolean mOpenSetPadding = true;
+
 
     //DataSetObserver监听ViewPager刷新并记录刷新前Item的位置
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
@@ -47,10 +51,10 @@ public class ViewPagerMultipleItemPlugin {
     }
 
     public ViewPagerMultipleItemPlugin(ViewPager viewPager) {
-        setViewPager(viewPager);
+        bindViewPager(viewPager);
     }
 
-    public void setViewPager(ViewPager viewPager) {
+    public void bindViewPager(ViewPager viewPager) {
         mViewPager = viewPager;
         if (mViewPager.getAdapter() != null) {
             mViewPager.getAdapter().registerDataSetObserver(mDataSetObserver);
@@ -61,6 +65,37 @@ public class ViewPagerMultipleItemPlugin {
                 if (newAdapter != null) {
                     newAdapter.registerDataSetObserver(mDataSetObserver);
                 }
+            }
+        });
+
+        mViewPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, final int left, final int top, final int right, final int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (left == oldLeft && top == oldTop && right == oldRight && bottom == oldBottom) {
+                    return;
+                }
+
+                final ViewPager vp = ((ViewPager) v);
+
+                if (isOpenSetPadding() && !(vp instanceof MultipleItemViewPager)) {
+                    final int width = right - left;
+                    final int height = bottom - top;
+                    vp.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //设置ViewPager的padding来显示多个Item
+                            calculatePadding(width, height);
+                            onSizeChange();
+                            int mVisibleOffsetNum = (int) (Math.ceil((vp.getWidth() - mPagerItemWidth) / 2f / mPagerItemWidth));
+                            if (mVisibleOffsetNum > mViewPager.getOffscreenPageLimit()) {
+                                mViewPager.setOffscreenPageLimit(mVisibleOffsetNum);
+                            }
+
+                        }
+                    });
+                }
+
+
             }
         });
     }
@@ -158,5 +193,13 @@ public class ViewPagerMultipleItemPlugin {
 
     public void setHeightProportion(float heightProportion) {
         mHeightProportion = heightProportion;
+    }
+
+    public boolean isOpenSetPadding() {
+        return mOpenSetPadding;
+    }
+
+    public void setOpenSetPadding(boolean openSetPadding) {
+        mOpenSetPadding = openSetPadding;
     }
 }

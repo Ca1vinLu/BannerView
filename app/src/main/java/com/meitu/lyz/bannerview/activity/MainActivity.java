@@ -24,10 +24,13 @@ import com.meitu.lyz.bannerview.widget.PagerIndicator;
 import com.meitu.lyz.bannerview.widget.ViewPagerIndicator;
 import com.meitu.lyz.widget.FixPagerTransformer;
 import com.meitu.lyz.widget.OffsetZoomPageTransformer;
+import com.meitu.lyz.widget.ViewPagerMultipleItemPlugin;
+import com.meitu.lyz.widget.ZoomPageTransformer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Queue;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,9 +73,10 @@ public class MainActivity extends AppCompatActivity {
     private void initData() {
         mAdapter = new MyAdapter();
         mViewPager.setAdapter(mAdapter);
-        FixPagerTransformer zoomPageTransformer = new OffsetZoomPageTransformer();
-        zoomPageTransformer.bindViewPager(mViewPager);
-        ((OffsetZoomPageTransformer) zoomPageTransformer).setItemMargin(ConvertUtils.dp2px(10, this));
+        ViewPagerMultipleItemPlugin plugin = new ViewPagerMultipleItemPlugin(mViewPager);
+        plugin.setRatio(348 / 276f);
+        FixPagerTransformer zoomPageTransformer = new ZoomPageTransformer();
+//        ((OffsetZoomPageTransformer) zoomPageTransformer).setItemMargin(ConvertUtils.dp2px(10, this));
 //        zoomPageTransformer.setRatio(1);
         mViewPager.setPageTransformer(false, zoomPageTransformer);
         generateData(15);
@@ -115,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
         mBtnChange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                generateData(new Random().nextInt(14) + 1);
+//                generateData(new Random().nextInt(14) + 1);
+                mAdapter.notifyDataSetItemChanged(5);
             }
         });
     }
@@ -135,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private class MyAdapter extends PagerAdapter {
 
         List<View> mViews;
+        Queue<Integer> updatePosIndex = new ArrayDeque<>();
 
         @Override
         public int getCount() {
@@ -151,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             if (mViews != null && mViews.size() > 0) {
                 View view = mViews.get(position);
-//            view.setTag(position);
+                view.setTag(position);
                 container.addView(view);
                 return view;
             } else return null;
@@ -164,11 +170,19 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemPosition(@NonNull Object object) {
-            return POSITION_NONE;
+            if (((View) object).getTag() == updatePosIndex.peek()) {
+                updatePosIndex.poll();
+                return POSITION_NONE;
+            } else return POSITION_UNCHANGED;
         }
 
         public void setViews(List<View> views) {
             mViews = views;
+            notifyDataSetChanged();
+        }
+
+        public void notifyDataSetItemChanged(int pos) {
+            updatePosIndex.add(pos);
             notifyDataSetChanged();
         }
     }

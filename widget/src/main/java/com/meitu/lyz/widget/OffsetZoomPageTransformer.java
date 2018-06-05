@@ -18,7 +18,7 @@ public class OffsetZoomPageTransformer extends FixPagerTransformer {
     private float mMinScale = 0.83f;
 
     //外部View的宽度
-    private int mRingWidth = 0;
+    private int mOutsideWidth = 0;
     //item间距
     private int mItemMargin = -1;
 
@@ -45,15 +45,17 @@ public class OffsetZoomPageTransformer extends FixPagerTransformer {
          * */
 
         //若padding还未计算则先计算padding
-        if (mPagerItemWidth == 0) {
-            ViewPager viewPager = (ViewPager) page.getParent();
-            mPagerItemWidth = getPagerPlugin().calculatePadding(viewPager.getWidth(), viewPager.getHeight());
-        }
+//        if (mPagerItemWidth == 0) {
+//            ViewPager viewPager = (ViewPager) page.getParent();
+//            mPagerItemWidth = getPagerPlugin().calculatePadding(viewPager.getWidth(), viewPager.getHeight());
+//        }
 
+        ViewPager viewPager = (ViewPager) page.getParent();
+        int mPagerItemWidth = viewPager.getMeasuredWidth() - viewPager.getPaddingStart() - viewPager.getPaddingEnd();
         //item缩放后的剩余宽度
         float leftSpace = (1 - scaleFactor) * mPagerItemWidth;
         //偏移值
-        float offset = Math.max((mRingWidth - mPagerItemWidth), 0) / 2f + leftSpace / 2;
+        float offset = Math.max((mOutsideWidth - mPagerItemWidth), 0) / 2f + leftSpace / 2;
 
         //若设置了特定的间距，则进行修正
         if (mItemMargin >= 0) {
@@ -98,13 +100,13 @@ public class OffsetZoomPageTransformer extends FixPagerTransformer {
     }
 
     /**
-     * 绑定外部View，获取外部View的宽度并赋值给{@link #mRingWidth}
+     * 绑定外部View，获取外部View的宽度并赋值给{@link #mOutsideWidth}
      */
     public void bindOutsideView(View view) {
         view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                mRingWidth = right - left;
+                mOutsideWidth = right - left;
             }
         });
     }

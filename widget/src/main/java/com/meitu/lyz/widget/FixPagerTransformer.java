@@ -16,19 +16,6 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
     private static final String TAG = "FixPagerTransformer";
 
-
-    private ViewPagerMultipleItemPlugin mPagerPlugin;
-
-    //page的实际宽度
-    protected int mPagerItemWidth;
-
-    //ViewPager单侧可见Item数
-    private int mVisibleOffsetNum = 0;
-
-    //是否开启Padding的计算修正
-    private boolean mOpenSetPadding = true;
-
-
     @Override
     public void transformPage(@NonNull View page, float position) {
         ViewPager mViewPager;
@@ -40,8 +27,7 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
 
         //notifyDataSetChanged()后，此时layout()还未执行，position均为0，进行修正
         if (position == 0 && mViewPager.isLayoutRequested()) {
-            //修正offscreenPageLimit
-            int offscreenPageLimit = mViewPager.getOffscreenPageLimit() + mVisibleOffsetNum;
+            int offscreenPageLimit = mViewPager.getOffscreenPageLimit();
             //子View个数
             int childCount = mViewPager.getChildCount();
             int curItem = mViewPager.getCurrentItem();
@@ -81,92 +67,4 @@ public abstract class FixPagerTransformer implements ViewPager.PageTransformer {
     protected abstract void fixTransformPage(@NonNull View page, float position);
 
 
-    /**
-     * 对ViewPager进行非侵入式配置
-     * ViewPager设置OnLayoutChangeListener来计算ViewPager的padding及处理size变化的情况
-     */
-    public void bindViewPager(ViewPager viewPager) {
-
-        if (isOpenSetPadding() && !(viewPager instanceof MultipleItemViewPager)) {
-            mPagerPlugin = new ViewPagerMultipleItemPlugin(viewPager);
-            mPagerPlugin.calculatePadding(viewPager.getWidth(), viewPager.getHeight());
-        } else if (viewPager instanceof MultipleItemViewPager) {
-            mPagerPlugin = ((MultipleItemViewPager) viewPager).getPagerPlugin();
-        }
-
-        viewPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, final int left, final int top, final int right, final int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                if (left == oldLeft && top == oldTop && right == oldRight && bottom == oldBottom) {
-                    return;
-                }
-
-                final ViewPager vp = ((ViewPager) v);
-
-                if (isOpenSetPadding() && !(vp instanceof MultipleItemViewPager)) {
-                    final int width = right - left;
-                    final int height = bottom - top;
-                    vp.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //设置ViewPager的padding来显示多个Item
-                            mPagerItemWidth = mPagerPlugin.calculatePadding(width, height);
-                            mVisibleOffsetNum = (int) (Math.ceil((vp.getWidth() - mPagerItemWidth) / 2f / mPagerItemWidth));
-                            mPagerPlugin.onSizeChange();
-                        }
-                    });
-                } else {
-                    mPagerItemWidth = vp.getWidth() - vp.getPaddingStart() - vp.getPaddingEnd();
-                    mVisibleOffsetNum = (int) (Math.ceil((vp.getWidth() - mPagerItemWidth) / 2f / mPagerItemWidth));
-                }
-
-
-            }
-        });
-
-
-    }
-
-
-    public boolean isOpenSetPadding() {
-        return mOpenSetPadding;
-    }
-
-    public void setOpenSetPadding(boolean openSetPadding) {
-        mOpenSetPadding = openSetPadding;
-    }
-
-    public float getRatio() {
-        return mPagerPlugin.getRatio();
-    }
-
-    public void setRatio(float ratio) {
-        mPagerPlugin.setRatio(ratio);
-    }
-
-
-    public float getWidthProportion() {
-        return mPagerPlugin.getWidthProportion();
-    }
-
-    public void setWidthProportion(float widthProportion) {
-        mPagerPlugin.setWidthProportion(widthProportion);
-    }
-
-    public float getHeightProportion() {
-        return mPagerPlugin.getHeightProportion();
-    }
-
-    public void setHeightProportion(float heightProportion) {
-        mPagerPlugin.setHeightProportion(heightProportion);
-    }
-
-
-    public ViewPagerMultipleItemPlugin getPagerPlugin() {
-        return mPagerPlugin;
-    }
-
-    public void setPagerPlugin(ViewPagerMultipleItemPlugin pagerPlugin) {
-        mPagerPlugin = pagerPlugin;
-    }
 }
